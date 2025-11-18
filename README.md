@@ -125,6 +125,7 @@ The API will be available at:
 
 | Method | Endpoint | Description | Parameters |
 |--------|----------|-------------|------------|
+| GET | `/` | Home route - Welcome message | None |
 | GET | `/api/getdata` | Retrieve all records | None |
 | POST | `/api/insert` | Insert a new record | Request Body: JSON object |
 | PUT | `/api/fullupdate` | Full update of a record (all fields required) | Query: `id`, Request Body: JSON object |
@@ -144,7 +145,18 @@ The API will be available at:
 
 ## 💡 Usage Examples
 
-### 1. Get All Data
+### 1. Home Route
+
+**Endpoint:** `GET /`
+
+**Response:**
+```json
+{
+  "message": "Welcome to the FastAPI MongoDB CRUD API. Visit /docs for API documentation."
+}
+```
+
+### 2. Get All Data
 
 **Endpoint:** `GET /api/getdata`
 
@@ -161,7 +173,7 @@ The API will be available at:
 ]
 ```
 
-### 2. Insert Data
+### 3. Insert Data
 
 **Endpoint:** `POST /api/insert`
 
@@ -183,7 +195,7 @@ The API will be available at:
 }
 ```
 
-### 3. Full Update Data (PUT)
+### 4. Full Update Data (PUT)
 
 **Endpoint:** `PUT /api/fullupdate?id=507f1f77bcf86cd799439011`
 
@@ -206,7 +218,7 @@ The API will be available at:
 }
 ```
 
-### 4. Partial Update Data (PATCH)
+### 5. Partial Update Data (PATCH)
 
 **Endpoint:** `PATCH /api/partialupdate?id=507f1f77bcf86cd799439011`
 
@@ -234,7 +246,7 @@ The API will be available at:
 }
 ```
 
-### 5. Delete Data
+### 6. Delete Data
 
 **Endpoint:** `DELETE /api/delete?id=507f1f77bcf86cd799439011`
 
