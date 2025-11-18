@@ -23,13 +23,15 @@ The API is deployed and accessible at: [https://fastapi-mongodb-api-5q42.onrende
 ## ✨ Features
 
 - ✅ Insert new records
-- ✅ Update existing records
+- ✅ Full update of existing records (PUT)
+- ✅ Partial update of existing records (PATCH)
 - ✅ Delete records
 - ✅ Retrieve all records
 - ✅ Async/Await support for better performance
 - ✅ Data validation using Pydantic
 - ✅ Interactive API documentation (Swagger UI)
 - ✅ MongoDB integration with Motor (async driver)
+- ✅ RESTful API design with proper HTTP methods
 
 ## 🛠️ Tech Stack
 
@@ -123,10 +125,11 @@ The API will be available at:
 
 | Method | Endpoint | Description | Parameters |
 |--------|----------|-------------|------------|
-| POST | `/api/insert` | Insert a new record | Request Body: JSON object |
-| POST | `/api/update` | Update an existing record | Query: `name`, Request Body: JSON object |
-| POST | `/api/delete` | Delete a record | Query: `name` |
 | GET | `/api/getdata` | Retrieve all records | None |
+| POST | `/api/insert` | Insert a new record | Request Body: JSON object |
+| PUT | `/api/fullupdate` | Full update of a record (all fields required) | Query: `id`, Request Body: JSON object |
+| PATCH | `/api/partialupdate` | Partial update of a record (only specified fields) | Query: `id`, Request Body: JSON object |
+| DELETE | `/api/delete` | Delete a record | Query: `id` |
 
 ### Data Model
 
@@ -141,7 +144,24 @@ The API will be available at:
 
 ## 💡 Usage Examples
 
-### 1. Insert Data
+### 1. Get All Data
+
+**Endpoint:** `GET /api/getdata`
+
+**Response:**
+```json
+[
+  {
+    "id": "507f1f77bcf86cd799439011",
+    "name": "John Doe",
+    "phone": 1234567890,
+    "city": "New York",
+    "course": "Computer Science"
+  }
+]
+```
+
+### 2. Insert Data
 
 **Endpoint:** `POST /api/insert`
 
@@ -163,11 +183,11 @@ The API will be available at:
 }
 ```
 
-### 2. Update Data
+### 3. Full Update Data (PUT)
 
-**Endpoint:** `POST /api/update`
+**Endpoint:** `PUT /api/fullupdate?id=507f1f77bcf86cd799439011`
 
-**Query Parameter:** `name=John Doe`
+**Description:** Updates all fields of a record. All fields must be provided.
 
 **Request Body:**
 ```json
@@ -182,38 +202,47 @@ The API will be available at:
 **Response:**
 ```json
 {
-  "message": "Data updated successfully"
+  "message": "Data fully updated successfully"
 }
 ```
 
-### 3. Delete Data
+### 4. Partial Update Data (PATCH)
 
-**Endpoint:** `POST /api/delete`
+**Endpoint:** `PATCH /api/partialupdate?id=507f1f77bcf86cd799439011`
 
-**Query Parameter:** `name=John Doe`
+**Description:** Updates only the specified fields. You can update one or more fields without providing all fields.
+
+**Request Body (update single field):**
+```json
+{
+  "city": "Mumbai"
+}
+```
+
+**Request Body (update multiple fields):**
+```json
+{
+  "city": "Mumbai",
+  "phone": 9876543210
+}
+```
+
+**Response:**
+```json
+{
+  "message": "Data partially updated successfully"
+}
+```
+
+### 5. Delete Data
+
+**Endpoint:** `DELETE /api/delete?id=507f1f77bcf86cd799439011`
 
 **Response:**
 ```json
 {
   "message": "Data deleted successfully"
 }
-```
-
-### 4. Get All Data
-
-**Endpoint:** `GET /api/getdata`
-
-**Response:**
-```json
-[
-  {
-    "id": "507f1f77bcf86cd799439011",
-    "name": "John Doe",
-    "phone": 1234567890,
-    "city": "New York",
-    "course": "Computer Science"
-  }
-]
 ```
 
 ## 📁 Project Structure
@@ -262,14 +291,29 @@ uvicorn main:app --host 0.0.0.0 --port $PORT
 
 ### Using cURL
 
+**Get All Data:**
+```bash
+curl -X GET "http://127.0.0.1:8000/api/getdata"
+```
+
 **Insert Data:**
 ```bash
 curl -X POST "http://127.0.0.1:8000/api/insert" -H "Content-Type: application/json" -d "{\"name\":\"Jane Smith\",\"phone\":5551234567,\"city\":\"Chicago\",\"course\":\"AI/ML\"}"
 ```
 
-**Get All Data:**
+**Full Update:**
 ```bash
-curl -X GET "http://127.0.0.1:8000/api/getdata"
+curl -X PUT "http://127.0.0.1:8000/api/fullupdate?id=YOUR_ID_HERE" -H "Content-Type: application/json" -d "{\"name\":\"Jane Smith\",\"phone\":9999999999,\"city\":\"Mumbai\",\"course\":\"Data Science\"}"
+```
+
+**Partial Update:**
+```bash
+curl -X PATCH "http://127.0.0.1:8000/api/partialupdate?id=YOUR_ID_HERE" -H "Content-Type: application/json" -d "{\"city\":\"Delhi\"}"
+```
+
+**Delete Data:**
+```bash
+curl -X DELETE "http://127.0.0.1:8000/api/delete?id=YOUR_ID_HERE"
 ```
 
 ### Using Python Requests
@@ -277,9 +321,15 @@ curl -X GET "http://127.0.0.1:8000/api/getdata"
 ```python
 import requests
 
+base_url = "http://127.0.0.1:8000"
+
+# Get all data
+response = requests.get(f"{base_url}/api/getdata")
+print(response.json())
+
 # Insert data
 response = requests.post(
-    "http://127.0.0.1:8000/api/insert",
+    f"{base_url}/api/insert",
     json={
         "name": "Jane Smith",
         "phone": 5551234567,
@@ -288,9 +338,36 @@ response = requests.post(
     }
 )
 print(response.json())
+inserted_id = response.json()["id"]
 
-# Get all data
-response = requests.get("http://127.0.0.1:8000/api/getdata")
+# Full update (all fields required)
+response = requests.put(
+    f"{base_url}/api/fullupdate",
+    params={"id": inserted_id},
+    json={
+        "name": "Jane Smith",
+        "phone": 9999999999,
+        "city": "Mumbai",
+        "course": "Data Science"
+    }
+)
+print(response.json())
+
+# Partial update (only specified fields)
+response = requests.patch(
+    f"{base_url}/api/partialupdate",
+    params={"id": inserted_id},
+    json={
+        "city": "Delhi"
+    }
+)
+print(response.json())
+
+# Delete data
+response = requests.delete(
+    f"{base_url}/api/delete",
+    params={"id": inserted_id}
+)
 print(response.json())
 ```
 
