@@ -18,6 +18,14 @@ api_data = db["fastapi_coll"]
 ## FastAPI app instance
 app = FastAPI()
 
+
+## Home Route
+@app.get("/")
+def home_route():
+    return {
+        "message": "Welcome to the FastAPI MongoDB CRUD API. Visit /docs for API documentation."
+    }
+
 ## Pydantic model for data validation
 class apidata(BaseModel):
     name: str
