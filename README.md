@@ -4,7 +4,7 @@ A small async REST API that stores and manages person records (name, phone, city
 It uses FastAPI for routing and validation, and Motor as the async MongoDB driver.
 Swagger UI is generated automatically at `/docs`.
 
-## Project Files
+## Project Files 
 
 | File | Description |
 |------|-------------|
